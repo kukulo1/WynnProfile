@@ -15,6 +15,15 @@ import static java.awt.Image.SCALE_DEFAULT;
 
 
 public class ImageGenerator {
+    private BufferedImage background;
+    private BufferedImage skin = null;
+    private Graphics2D g = null;
+    private File output = null;
+
+    private Font font52 = new Font("Sans-serif", Font.PLAIN, 52);
+    private Font font82 = new Font("Sans-serif", Font.PLAIN, 82);
+    private Font font85 = new Font("Sans-serif", Font.PLAIN, 85);
+
     private int baseUpperY = 337; //337
     private int baseDownY = 1130; //1145
     private int[] xCoordsNums = {
@@ -41,18 +50,26 @@ public class ImageGenerator {
     private final int skinCoordY = 381;
     private final int skinScaleX = 732;
     private final int skinScaleY = 1042;
-    public File createImage(Player player, Character mainChar) {
-        System.out.println("ABOBA");
-        try {
-            BufferedImage background = ImageIO.read(new File("src/main/resources/zalupaTemplate.jpg"));
-            Graphics2D g = background.createGraphics();
-            BufferedImage skin = getSkin(player.getUuid());
-            Image img = skin.getScaledInstance(skinScaleX, skinScaleY, SCALE_DEFAULT);
-            g.drawImage(img, skinCoordX, skinCoordY, null);
-            addStatisticsToImage(g, player, mainChar);
 
-            File output = new File("src/main/resources/output.png");
+    public ImageGenerator() {
+        try {
+            background  = ImageIO.read(new File("src/main/resources/zalupaTemplate.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public File createImage(Player player, Character mainChar) {
+        try {
+            g = background.createGraphics();
+            skin = getSkin(player.getUuid());
+            g.drawImage(skin.getScaledInstance(skinScaleX, skinScaleY, SCALE_DEFAULT), skinCoordX, skinCoordY, null);
+            System.out.println("stat start");
+            addStatisticsToImage(g, player, mainChar);
+            System.out.println("stat end");
+            output = new File("src/main/resources/output.png");
             ImageIO.write(background, "png", output);
+            System.out.println("output is made");
             return output;
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,60 +78,61 @@ public class ImageGenerator {
     }
 
     private void addStatisticsToImage(Graphics2D g, Player player, Character mainChar) {
-        drawString(String.format("%s's profile:", player.getUsername()), 0, 64, g, 85);
+        g.setFont(font85);
+        drawString(String.format("%s's profile:", player.getUsername()), 0, 64, g);
 
-        drawString(mainChar.getPlaytime(), xCoordsNums[1], yCoordsNums[1], g, 52);
-        drawString(mainChar.getTotalLevel(), xCoordsNums[1], yCoordsNums[2], g, 52);
-        drawString(mainChar.getWars(), xCoordsNums[1], yCoordsNums[3], g, 52);
-        drawString(mainChar.getMobsKilled(), xCoordsNums[1], yCoordsNums[4], g, 52);
-        drawString(mainChar.getChestsFound(), xCoordsNums[1], yCoordsNums[5], g, 52);
-        drawString(mainChar.getItemsIdentified(), xCoordsNums[1], yCoordsNums[6], g, 52);
-        drawString(mainChar.getDeaths(), xCoordsNums[1], yCoordsNums[7], g, 52);
+        //font 52
+        g.setFont(font52);
+        drawString(mainChar.getPlaytime(), xCoordsNums[1], yCoordsNums[1], g);
+        drawString(mainChar.getTotalLevel(), xCoordsNums[1], yCoordsNums[2], g);
+        drawString(mainChar.getWars(), xCoordsNums[1], yCoordsNums[3], g);
+        drawString(mainChar.getMobsKilled(), xCoordsNums[1], yCoordsNums[4], g);
+        drawString(mainChar.getChestsFound(), xCoordsNums[1], yCoordsNums[5], g);
+        drawString(mainChar.getItemsIdentified(), xCoordsNums[1], yCoordsNums[6], g);
+        drawString(mainChar.getDeaths(), xCoordsNums[1], yCoordsNums[7], g);
 
-        drawString(mainChar.getPvp().getKills(), xCoordsNums[2], yCoordsNums[1], g, 52);
-        drawString(mainChar.getPvp().getDeaths(), xCoordsNums[2], yCoordsNums[2], g, 52);
-        drawString(mainChar.getDungeons().getTotal(), xCoordsNums[2], yCoordsNums[5], g, 52);
+        drawString(mainChar.getPvp().getKills(), xCoordsNums[2], yCoordsNums[1], g);
+        drawString(mainChar.getPvp().getDeaths(), xCoordsNums[2], yCoordsNums[2], g);
+        drawString(mainChar.getDungeons().getTotal(), xCoordsNums[2], yCoordsNums[5], g);
         try {
-            drawString(mainChar.getRaids().getTotal(), xCoordsNums[2], yCoordsNums[8], g, 52);
+            drawString(mainChar.getRaids().getTotal(), xCoordsNums[2], yCoordsNums[8], g);
         } catch (Exception e) {
-            drawString("N/A", xCoordsNums[2], yCoordsNums[8], g, 52);
+            drawString("N/A", xCoordsNums[2], yCoordsNums[8], g);
         }
 
-        drawString(mainChar.getProfessions().getFishing().toString() + String.format(" (#%d)", player.getRanking().getFishingLevel()), xCoordsNums[3], yCoordsNums[9], g, 52 );
-        drawString(mainChar.getProfessions().getWoodcutting().toString() + String.format(" (#%d)", player.getRanking().getWoodcuttingLevel()), xCoordsNums[3], yCoordsNums[10], g, 52 );
-        drawString(mainChar.getProfessions().getMining().toString() + String.format(" (#%d)", player.getRanking().getMiningLevel()), xCoordsNums[3], yCoordsNums[11], g, 52 );
-        drawString(mainChar.getProfessions().getFarming().toString() + String.format(" (#%d)", player.getRanking().getFarmingLevel()), xCoordsNums[3], yCoordsNums[12], g, 52 );
+        drawString(mainChar.getProfessions().getFishing().toString() + String.format(" (#%d)", player.getRanking().getFishingLevel()), xCoordsNums[3], yCoordsNums[9], g );
+        drawString(mainChar.getProfessions().getWoodcutting().toString() + String.format(" (#%d)", player.getRanking().getWoodcuttingLevel()), xCoordsNums[3], yCoordsNums[10], g );
+        drawString(mainChar.getProfessions().getMining().toString() + String.format(" (#%d)", player.getRanking().getMiningLevel()), xCoordsNums[3], yCoordsNums[11], g );
+        drawString(mainChar.getProfessions().getFarming().toString() + String.format(" (#%d)", player.getRanking().getFarmingLevel()), xCoordsNums[3], yCoordsNums[12], g );
 
-        drawString(mainChar.getProfessions().getScribing().toString() + String.format(" (#%d)", player.getRanking().getScribingLevel()), xCoordsNums[4], yCoordsNums[9], g, 52 );
-        drawString(mainChar.getProfessions().getJeweling().toString() + String.format(" (#%d)", player.getRanking().getJewelingLevel()), xCoordsNums[4], yCoordsNums[10], g, 52 );
-        drawString(mainChar.getProfessions().getAlchemism().toString() + String.format(" (#%d)", player.getRanking().getAlchemismLevel()), xCoordsNums[4], yCoordsNums[11], g, 52 );
-        drawString(mainChar.getProfessions().getCooking().toString() + String.format(" (#%d)", player.getRanking().getCookingLevel()), xCoordsNums[4], yCoordsNums[12], g, 52 );
-        drawString(mainChar.getProfessions().getWeaponsmithing().toString() + String.format(" (#%d)", player.getRanking().getWeaponsmithingLevel()), xCoordsNums[4], yCoordsNums[13], g, 52 );
-        drawString(mainChar.getProfessions().getTailoring().toString() + String.format(" (#%d)", player.getRanking().getTailoringLevel()), xCoordsNums[4], yCoordsNums[14], g, 52 );
-        drawString(mainChar.getProfessions().getWoodworking().toString() + String.format(" (#%d)", player.getRanking().getWoodworkingLevel()), xCoordsNums[4], yCoordsNums[15], g, 52 );
-        drawString(mainChar.getProfessions().getArmouring().toString() + String.format(" (#%d)", player.getRanking().getArmouringLevel()), xCoordsNums[4], yCoordsNums[16], g, 52 );
-
-        drawString(mainChar.getClassAndXpInfo(), xCoordsNums[5], yCoordsNums[17], g, 82); //class
-
-        drawCenteredString(player.getRank(), new Rectangle(
-                xCoordsNums[6], yCoordsNums[18],
-                807, 144), g, 82); //player rank
-
+        drawString(mainChar.getProfessions().getScribing().toString() + String.format(" (#%d)", player.getRanking().getScribingLevel()), xCoordsNums[4], yCoordsNums[9], g );
+        drawString(mainChar.getProfessions().getJeweling().toString() + String.format(" (#%d)", player.getRanking().getJewelingLevel()), xCoordsNums[4], yCoordsNums[10], g );
+        drawString(mainChar.getProfessions().getAlchemism().toString() + String.format(" (#%d)", player.getRanking().getAlchemismLevel()), xCoordsNums[4], yCoordsNums[11], g );
+        drawString(mainChar.getProfessions().getCooking().toString() + String.format(" (#%d)", player.getRanking().getCookingLevel()), xCoordsNums[4], yCoordsNums[12], g );
+        drawString(mainChar.getProfessions().getWeaponsmithing().toString() + String.format(" (#%d)", player.getRanking().getWeaponsmithingLevel()), xCoordsNums[4], yCoordsNums[13], g );
+        drawString(mainChar.getProfessions().getTailoring().toString() + String.format(" (#%d)", player.getRanking().getTailoringLevel()), xCoordsNums[4], yCoordsNums[14], g );
+        drawString(mainChar.getProfessions().getWoodworking().toString() + String.format(" (#%d)", player.getRanking().getWoodworkingLevel()), xCoordsNums[4], yCoordsNums[15], g );
+        drawString(mainChar.getProfessions().getArmouring().toString() + String.format(" (#%d)", player.getRanking().getArmouringLevel()), xCoordsNums[4], yCoordsNums[16], g );
         if (!mainChar.getGamemode().isEmpty()) {
             List<String> gamemodesList = new ArrayList<String>(mainChar.getGamemode().stream().toList());
             drawCenteredString(gamemodesList.toString()
                     .replace("[", "")
                     .replace("]", ""), new Rectangle(
                     xCoordsNums[7], yCoordsNums[19],
-                    2241, 126), g, 52); //gamemodes
-        }
-        else {
+                    2241, 126), g, font52); //gamemodes
+        } else {
             drawCenteredString("Just a regular character :)", new Rectangle(
                     xCoordsNums[7], yCoordsNums[19],
-                    2241, 126), g, 52);
+                    2241, 126), g, font52);
         }
+        //font 82
+        g.setFont(font82);
+        drawString(mainChar.getClassAndXpInfo(), xCoordsNums[5], yCoordsNums[17], g); //class
 
-        drawString(player.getGuild().formStatistics(), xCoordsNums[8], yCoordsNums[20], g, 82); //guild
+        drawCenteredString(player.getRank(), new Rectangle(
+                xCoordsNums[6], yCoordsNums[18],
+                807, 144), g, font82); //player rank
+        drawString(player.getGuild().formStatistics(), xCoordsNums[8], yCoordsNums[20], g); //guild
 
     }
     private BufferedImage getSkin(String uuid) {
@@ -133,25 +151,20 @@ public class ImageGenerator {
         }
         return null;
     }
-    private void drawString(String str, int x, int y, Graphics2D g, int fontSize) {
-        g.setFont(new Font("Sans-serif", Font.PLAIN, fontSize));
+    private void drawString(String str, int x, int y, Graphics2D g) {
         g.drawString(str, x, y);
     }
-    private void drawString(int number, int x, int y, Graphics2D g, int fontSize) {
-        g.setFont(new Font("Sans-serif", Font.PLAIN, fontSize));
+    private void drawString(int number, int x, int y, Graphics2D g) {
         g.drawString(String.valueOf(number), x, y);
     }
-    private void drawString(double number, int x, int y, Graphics2D g, int fontSize) {
-        g.setFont(new Font("Sans-serif", Font.PLAIN, fontSize));
+    private void drawString(double number, int x, int y, Graphics2D g) {
         g.drawString(String.valueOf(number), x, y);
     }
-    private void drawString(Double number, int x, int y, Graphics2D g, int fontSize) {
-        g.setFont(new Font("Sans-serif", Font.PLAIN, fontSize));
+    private void drawString(Double number, int x, int y, Graphics2D g) {
         g.drawString(String.valueOf(number), x, y);
     }
-    public void drawCenteredString(String text, Rectangle rect, Graphics2D g, int fontSize) {
+    public void drawCenteredString(String text, Rectangle rect, Graphics2D g, Font font) {
         // Get the FontMetrics
-        Font font = new Font("Sans-serif", Font.PLAIN, fontSize);
         FontMetrics metrics = g.getFontMetrics(font);
         // Determine the X coordinate for the text
         int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
@@ -162,5 +175,6 @@ public class ImageGenerator {
         // Draw the String
         g.drawString(text, x, y);
     }
+
 
 }

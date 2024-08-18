@@ -13,14 +13,6 @@ public class Player {
     private String activeCharacter;
     private String uuid;
     private String rank;
-    private String rankBadge;
-    private String legacyRankColourMain;
-    private String legacyRankColourSub;
-    private String shortenedRank;
-    private String supportRank;
-    private boolean veteran;
-    private String firstJoin;
-    private String lastJoin;
     private float playtime;
     private Guild guild;
     private Collection<Character> characterList;

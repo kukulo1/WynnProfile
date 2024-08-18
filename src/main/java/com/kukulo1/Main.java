@@ -1,11 +1,6 @@
 package com.kukulo1;
 
-import com.google.gson.Gson;
 import com.kukulo1.discord.MessageReceiver;
-import com.kukulo1.json.objects.Player;
-import com.kukulo1.json.objects.Character;
-import com.kukulo1.json.requests.Parser;
-import com.kukulo1.output.ImageGenerator;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;

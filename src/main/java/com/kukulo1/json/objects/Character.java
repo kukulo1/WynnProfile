@@ -18,10 +18,7 @@ public class Character {
     private int mobsKilled;
     private int chestsFound;
     private int itemsIdentified;
-    private int blocksWalked;
-    private int logins;
     private int deaths;
-    private int discoveries;
     private Pvp pvp;
     private Dungeon dungeons;
     private Raid raids;

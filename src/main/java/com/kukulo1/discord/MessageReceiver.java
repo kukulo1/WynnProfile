@@ -14,8 +14,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class MessageReceiver extends ListenerAdapter {
+    private ImageGenerator ig = new ImageGenerator();
+    private Parser parser = new Parser();
+    private FileUpload f = null;
+    private Player player = null;
+    private Character mainChar = null;
+    private Gson gson = new Gson();
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        long startTime = System.currentTimeMillis();
         if (event.getAuthor().isBot()) return;
 
         Message msg = event.getMessage();
@@ -23,22 +30,21 @@ public class MessageReceiver extends ListenerAdapter {
 
         if (content.equals("!profile")) {
             String nick = "yksti";
-            Gson gson = new Gson();
             System.out.println("1");
-            Player player = gson.fromJson(Parser.getPlayerData(nick, false), Player.class);
+            player = parser.getPlayerData(nick);
             System.out.println("12");
             if (!(player.getActiveCharacter() == null || player.getActiveCharacter().isEmpty())) {
-                ImageGenerator ig = new ImageGenerator();
-                Character mainChar = Parser.getCharacter(nick, player.getActiveCharacter());
+                mainChar = parser.getCharacter(nick, player.getActiveCharacter());
                 System.out.println("123");
-                File outputImage = ig.createImage(player, mainChar);
+                f = FileUpload.fromData(ig.createImage(player, mainChar)); //output image
                 System.out.println("1234");
-                FileUpload f = FileUpload.fromData(outputImage);
                 event.getChannel().sendFiles(f).queue();
             }
             //player.setCharacterList(Parser.getCharactersList(nick).values());
 
 
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("full time = " + (endTime - startTime));
     }
 }
