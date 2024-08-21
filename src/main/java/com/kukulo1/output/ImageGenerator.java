@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static java.awt.Image.SCALE_DEFAULT;
 
@@ -51,6 +52,8 @@ public class ImageGenerator {
     private final int skinScaleX = 732;
     private final int skinScaleY = 1042;
 
+    private final int maxTries = 8;
+
     public ImageGenerator() {
         try {
             background  = ImageIO.read(new File("src/main/resources/zalupaTemplate.jpg"));
@@ -61,15 +64,14 @@ public class ImageGenerator {
 
     public File createImage(Player player, Character mainChar) {
         try {
-            g = background.createGraphics();
+            BufferedImage bg = copyImage(background);
+            g = bg.createGraphics();
             skin = getSkin(player.getUuid());
             g.drawImage(skin.getScaledInstance(skinScaleX, skinScaleY, SCALE_DEFAULT), skinCoordX, skinCoordY, null);
-            System.out.println("stat start");
             addStatisticsToImage(g, player, mainChar);
-            System.out.println("stat end");
             output = new File("src/main/resources/output.png");
-            ImageIO.write(background, "png", output);
-            System.out.println("output is made");
+            ImageIO.write(bg, "png", output);
+            g.dispose();
             return output;
         } catch (IOException e) {
             e.printStackTrace();
@@ -132,22 +134,33 @@ public class ImageGenerator {
         drawCenteredString(player.getRank(), new Rectangle(
                 xCoordsNums[6], yCoordsNums[18],
                 807, 144), g, font82); //player rank
-        drawString(player.getGuild().formStatistics(), xCoordsNums[8], yCoordsNums[20], g); //guild
+        try {
+            drawString(player.getGuild().formStatistics(), xCoordsNums[8], yCoordsNums[20], g); //guild
+        } catch (NullPointerException e) {
+            drawString("I don't have a guild :(", xCoordsNums[8], yCoordsNums[20], g); //guild
+        }
 
     }
     private BufferedImage getSkin(String uuid) {
         String s = String.format("https://visage.surgeplay.com/full/448/%s", uuid);
-        try {
-            URL url = new URL(s);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Accept", "image/png");
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-            System.out.println(connection.getResponseMessage());
-            connection.connect();
-            return ImageIO.read(connection.getInputStream());
-        } catch (Exception e) {
-            e.printStackTrace();
+        int count = 0;
+        while(true) {
+            try {
+                URL url = new URL(s);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Accept", "image/png");
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+                System.out.println(connection.getResponseMessage());
+                connection.connect();
+                return ImageIO.read(connection.getInputStream());
+            } catch (Exception e) {
+                Logger.getAnonymousLogger().info("Couldn't get 3d render of skin! Trying again...");
+                if (++count == maxTries) {
+                    Logger.getAnonymousLogger().info("Couldn't find any skin by UUID - " + uuid);
+                    break;
+                }
+            }
         }
         return null;
     }
@@ -175,6 +188,12 @@ public class ImageGenerator {
         // Draw the String
         g.drawString(text, x, y);
     }
-
+    private BufferedImage copyImage(BufferedImage source){
+        BufferedImage b = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
+        Graphics2D g = (Graphics2D) b.getGraphics();
+        g.drawImage(source, 0, 0, null);
+        g.dispose();
+        return b;
+    }
 
 }

@@ -13,10 +13,10 @@ public class Parser {
     private Gson gson = new Gson();
     private String wynnApiEndpoint = "https://api.wynncraft.com/v3/";
 
-    public Player getPlayerData(String username) {
+    public Player getPlayerData(String UUID) {
         try {
             HttpURLConnection c = (HttpURLConnection) new URL(
-                    String.format(wynnApiEndpoint + "player/%s", username)
+                    String.format(wynnApiEndpoint + "player/%s", UUID)
             ).openConnection();
             return gson.fromJson(new InputStreamReader(c.getInputStream()), Player.class);
         } catch (Exception e) {
@@ -39,10 +39,10 @@ public class Parser {
 //
 //    }
 
-    public Character getCharacter(String username, String characterUUID) {
+    public Character getCharacter(String UUID, String characterUUID) {
         try {
             HttpURLConnection c = (HttpURLConnection) new URL(
-                    String.format(wynnApiEndpoint + "player/%s/characters/%s", username, characterUUID)).openConnection();
+                    String.format(wynnApiEndpoint + "player/%s/characters/%s", UUID, characterUUID)).openConnection();
             return gson.fromJson(new InputStreamReader(c.getInputStream()), Character.class);
         } catch (Exception e) {
             e.printStackTrace();
